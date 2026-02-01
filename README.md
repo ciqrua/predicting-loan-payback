@@ -1,4 +1,3 @@
-
 # Loan Payback Prediction (Kaggle Playground S5E11)
 
 Predict whether a loan will be paid back using tabular financial and demographic features.
