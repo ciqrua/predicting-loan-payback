@@ -69,7 +69,7 @@ This project implements a Kaggle-style ML pipeline with unified preprocessing, o
 
 ### Option A: Run on Kaggle (recommended)
 
-1. Upload the notebook to :contentReference[oaicite:0]{index=0}
+1. Upload the notebook to Kaggle
 2. Attach the competition dataset
 3. Run all cells
 
