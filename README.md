@@ -1,98 +1,143 @@
-# Loan Payback Prediction (Kaggle Playground S5E11)
+# Loan Payback Prediction with Stacking Ensemble
 
-Predict whether a loan will be paid back using tabular financial and demographic features.
-This project implements a Kaggle-style ML pipeline with unified preprocessing, out-of-fold (OOF) validation, and stacking ensemble.
+This project tackles a binary classification problem: predicting whether a loan
+will be paid back based on borrower financial and demographic information.
+The solution follows a Kaggle-style machine learning pipeline with robust
+cross-validation and stacking ensemble learning.
 
-## Overview
+---
 
-- **Task**: Binary classification (`loan_paid_back`)
-- **Challenge**: Imbalanced target → use **ROC-AUC** as the primary metric
-- **Approach**:
-  - Unified preprocessing across train/test
-  - **Stratified K-Fold OOF** training (5 folds) with multiple random seeds
-  - Base learners: **LightGBM**, **XGBoost**, **CatBoost**
-  - **Stacking** with Logistic Regression as meta-model
-  - ROC Curve plotted using OOF predictions
+## Table of Contents
+- [Problem Statement](#problem-statement)
+- [Dataset](#dataset)
+- [Overall Pipeline](#overall-pipeline)
+- [Feature Processing](#feature-processing)
+- [Modeling Strategy](#modeling-strategy)
+- [Evaluation](#evaluation)
+- [Results](#results)
+- [Project Structure](#project-structure)
+- [How to Reproduce](#how-to-reproduce)
+- [Future Work](#future-work)
 
-## Methods
+---
 
-### 1) Preprocessing
+## Problem Statement
+Given historical loan records, the goal is to predict whether a loan will be
+successfully paid back. This is formulated as a **binary classification problem**
+with imbalanced classes, where ROC-AUC is used as the primary evaluation metric.
 
-- Fill missing values:
-  - Numerical features → median
-  - Categorical features → `"missing"` then `LabelEncoder`
-- Drop `id` column (not used as feature)
-- Train/test are concatenated for consistent preprocessing, then split back
+---
 
-### 2) Out-of-Fold Training (OOF)
+## Dataset
+- Source: Kaggle Playground Series (Season 5, Episode 11)
+- Target variable: `loan_paid_back`
+- Feature types:
+  - Numerical: income, debt ratio, loan amount, interest rate, etc.
+  - Categorical: employment status, education level, home ownership, etc.
 
-- `StratifiedKFold(n_splits=5, shuffle=True)`
-- Seeds used: `42`, `2023`
-- For each model:
-  - Train on 4 folds, validate on 1 fold
-  - Collect OOF predictions for robust ROC-AUC evaluation
-  - Average predictions across folds & seeds
+Raw data files are not included in this repository. See `data/README.md` for
+details on how to obtain the dataset.
 
-### 3) Stacking Ensemble
+---
 
-- Train base models and collect:
-  - `oof_lgb`, `oof_xgb`, `oof_cat`
-- Meta features:
-  - `meta_X = [oof_lgb, oof_xgb, oof_cat]`
-- Meta-model:
-  - Logistic Regression (`max_iter=500`) trained on OOF meta features
+## Overall Pipeline
+1. Data loading and concatenation (train + test)
+2. Missing value handling
+3. Categorical encoding
+4. Stratified K-Fold cross-validation
+5. Training multiple gradient boosting models
+6. Out-of-Fold (OOF) prediction generation
+7. Stacking ensemble with a meta-model
+8. Performance evaluation using ROC-AUC
 
-## Results (OOF ROC-AUC)
+---
 
-| Model                  |       OOF ROC-AUC |
-| ---------------------- | ----------------: |
-| LightGBM               |           0.92272 |
-| XGBoost                |           0.92192 |
-| CatBoost               |           0.92315 |
-| Stacking (LogReg meta) | **0.92335** |
+## Feature Processing
+- Numerical features:
+  - Missing values filled using median statistics
+- Categorical features:
+  - Missing values filled with `"missing"`
+  - Encoded using `LabelEncoder`
+- Identifier column (`id`) is dropped before modeling
 
-> Note: Scores are computed from out-of-fold predictions, which better reflect generalization performance than a single split.
+All preprocessing steps are applied consistently to both training and test sets.
 
-## Repository Structure
+---
 
+## Modeling Strategy
+### Base Models
+The following tree-based models are trained using **Stratified K-Fold (5 folds)**
+cross-validation with multiple random seeds:
+
+- LightGBM
+- XGBoost
+- CatBoost
+
+For each model, Out-of-Fold (OOF) predictions are collected to ensure an unbiased
+estimate of generalization performance.
+
+### Stacking Ensemble
+OOF predictions from all base models are used as meta-features to train a
+Logistic Regression meta-model. This stacking approach leverages the strengths
+of different learners and improves overall performance stability.
+
+---
+
+## Evaluation
+- Metric: ROC-AUC
+- Validation strategy: Out-of-Fold (OOF) predictions
+- Visualization: ROC Curve plotted using OOF probabilities
+
+This evaluation strategy avoids information leakage and provides a reliable
+estimate of real-world performance.
+
+---
+
+## Results
+| Model | OOF ROC-AUC |
+|------|-------------:|
+| LightGBM | 0.9227 |
+| XGBoost | 0.9219 |
+| CatBoost | 0.9232 |
+| Stacking Ensemble | **0.9234** |
+
+The stacking ensemble achieves the best performance, demonstrating the benefit
+of combining multiple gradient boosting models.
+
+---
+
+## Project Structure
+```text
+.
 ├── predicting-loan-payback.ipynb
-
 ├── README.md
-
-├── data
-
-├── images
-
-└── requirements.txt
-
-## How to Run
-
-### Option A: Run on Kaggle (recommended)
-
-1. Upload the notebook to Kaggle
-2. Attach the competition dataset
-3. Run all cells
-
-### Option B: Run locally
-
-1. Install dependencies
-
-```bash
-pip install -U numpy pandas scikit-learn matplotlib seaborn lightgbm xgboost catboost
+├── requirements.txt
+├── data/
+│   └── README.md
+└── images/
 ```
 
-2. Download the Kaggle dataset and update file paths in the notebook:
+---
 
-* `train.csv`
-* `test.csv`
+## How to Reproduce
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+2. Download the dataset from Kaggle and place train.csv and test.csv
+inside the data/ directory.
 
 3. Run the notebook:
-
 ```bash
 jupyter notebook predicting-loan-payback.ipynb
 ```
 
-## Notes / Next Improvements
+## Future Work
 
-* Replace `LabelEncoder` with `OneHotEncoder` / target encoding for potentially better performance
-* Add feature importance (LGB/XGB) and error analysis
+- Replace label encoding with target encoding for categorical variables
+
+- Perform feature importance analysis
+
+- Experiment with additional meta-models for stacking
+
+---
