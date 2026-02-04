@@ -104,6 +104,15 @@ estimate of real-world performance.
 The stacking ensemble achieves the best performance, demonstrating the benefit
 of combining multiple gradient boosting models.
 
+**Kaggle Leaderboard Performance**
+
+- Public Score: 0.92343
+- Private Score: 0.92425
+
+The leaderboard scores are highly consistent with the out-of-fold (OOF) ROC-AUC,
+indicating strong generalization and a reliable validation strategy.
+
+
 ---
 
 ## Project Structure
