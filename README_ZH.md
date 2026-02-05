@@ -116,11 +116,13 @@
 .
 ├── predicting-loan-payback.ipynb
 ├── README.md
-├── README_zh.md
 ├── requirements.txt
+├── submission.csv
 ├── data/
 │   └── README.md
 └── images/
+    ├─ ROC Curve.png
+    └─ Target Distribution.png
 ```
 
 ---
