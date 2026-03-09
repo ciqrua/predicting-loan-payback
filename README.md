@@ -2,8 +2,7 @@
 
 This project tackles a binary classification problem: predicting whether a loan
 will be paid back based on borrower financial and demographic information.
-The solution follows a Kaggle-style machine learning pipeline with robust
-cross-validation and stacking ensemble learning.
+The solution has robust cross-validation and stacking ensemble learning.
 
 ---
 
